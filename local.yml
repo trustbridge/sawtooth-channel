@@ -1,0 +1,100 @@
+version: "3.5"
+
+networks:
+  apis_external:
+    driver: bridge
+    name: intergov-apis-external
+  internal:
+    driver: bridge
+    name: int
+
+services:
+
+  settings-tp:
+    image: hyperledger/sawtooth-settings-tp:1.0
+    container_name: sawtooth-settings-tp-default
+    depends_on:
+      - validator
+    networks:
+      - internal
+    entrypoint: settings-tp -vv -C tcp://validator:4004
+
+  dgm-tp-python:
+    build:
+      context: ../
+      dockerfile: sawtooth-channel-dgm-tp/processor/Dockerfile
+      #sawtooth-channel-dgp-tp/processor/Dockerfile
+      args:
+        - http_proxy
+        - https_proxy
+        - no_proxy
+    image: dgm-tp-python-local
+    # volumes:
+    #   - ./:/project/sawtooth-core
+    container_name: dgm-tp-python-local
+    depends_on:
+      - validator
+    networks:
+      - internal
+    command: |
+      bash -c "
+        coo-tp-python -vv -C tcp://validator:4004"
+    stop_signal: SIGKILL
+
+  validator:
+    image: hyperledger/sawtooth-validator:1.0
+    container_name: sawtooth-validator-default
+    expose:
+      - 4004
+    ports:
+      - "4004:4004"
+    networks:
+      - apis_external
+      - internal
+    # start the validator with an empty genesis batch
+    entrypoint: "bash -c \"\
+        sawadm keygen && \
+        sawtooth keygen my_key && \
+        sawset genesis -k /root/.sawtooth/keys/my_key.priv && \
+        sawadm genesis config-genesis.batch && \
+        sawtooth-validator -vv \
+          --endpoint tcp://validator:8800 \
+          --bind component:tcp://eth0:4004 \
+          --bind network:tcp://eth0:8800 \""
+
+  rest-api:
+    image: hyperledger/sawtooth-rest-api:1.0
+    container_name: sawtooth-rest-api-default
+    ports:
+      - "8008:8008"
+    depends_on:
+      - validator
+    networks:
+      - apis_external
+      - internal
+    entrypoint: sawtooth-rest-api -C tcp://validator:4004 --bind rest-api:8008
+
+  client:
+    build:
+      context: ../
+      dockerfile: docker/sawtooth-shell
+      args:
+        - http_proxy
+        - https_proxy
+        - no_proxy
+    image: sawtooth-shell-local
+    # volumes:
+    #   - ../:/project/sawtooth-core
+    container_name: sawtooth-shell-local
+    depends_on:
+      - validator
+    networks:
+      - internal
+    command: |
+      bash -c "
+        ls &&
+        sawtooth keygen &&
+        tail -f /dev/null"
+    stop_signal: SIGKILL
+# FIXME: it's a mistake to use a build context of the parent of this repo
+# use a local sawtooth-shell dockerfile (pushing the basic stuff elseware)

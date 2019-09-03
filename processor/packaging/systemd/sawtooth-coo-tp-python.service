@@ -1,0 +1,13 @@
+[Unit]
+Description=Sawtooth Channel GDM TP
+After=network.target
+
+[Service]
+User=sawtooth
+Group=sawtooth
+EnvironmentFile=-/etc/default/sawtooth-coo-tp-python
+ExecStart=/usr/bin/coo-tp-python $sawtooth_coo_TP_PYTHON_ARGS
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

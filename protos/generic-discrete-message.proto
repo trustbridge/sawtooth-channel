@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+package icl;
+
+message Message {
+
+        required string subject = 1;
+        required string predicate = 2;
+        required string object = 3;
+        required string sender = 4;
+        required string recipient = 5;
+}

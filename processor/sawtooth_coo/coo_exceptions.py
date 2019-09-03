@@ -1,0 +1,2 @@
+class CoOException(Exception):
+    pass
