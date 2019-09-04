@@ -38,7 +38,7 @@ services:
       - internal
     command: |
       bash -c "
-        coo-tp-python -vv -C tcp://validator:4004"
+      python3 bin/coo-tp-python -vv -C tcp://validator:4004"
     stop_signal: SIGKILL
 
   validator:
