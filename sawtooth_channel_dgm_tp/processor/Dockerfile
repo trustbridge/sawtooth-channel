@@ -30,8 +30,11 @@ RUN mkdir -p /var/log/sawtooth
 ENV PATH=$PATH:/app/bin
 ADD ./ /app/
 WORKDIR /app
+#
+# TODO: fixme: refactor this with setup.py / pypi etc.
+#
 RUN echo "\033[0;32m--- Building coo-tp-python ---\n\033[0m" \
  && bin/protogen \
- && cd sawtooth-channel-dgm-tp/processor \
+ && cd sawtooth-channel-dgm-tp/sawtooth_channel_dgm_tp/processor \
  && python3 setup.py clean --all \
  && python3 setup.py build
