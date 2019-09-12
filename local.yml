@@ -22,7 +22,7 @@ services:
   dgm-tp-python:
     build:
       context: ../
-      dockerfile: sawtooth-channel-dgm-tp/processor/Dockerfile
+      dockerfile: sawtooth-channel-dgm-tp/sawtooth_channel_dgm_tp/processor/Dockerfile
       #sawtooth-channel-dgp-tp/processor/Dockerfile
       args:
         - http_proxy
