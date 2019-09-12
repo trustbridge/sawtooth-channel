@@ -7,10 +7,7 @@ from setuptools import setup, find_packages
 
 conf_dir = "/etc/sawtooth"
 
-# FIXME: xo! can we delete this anyhow
-data_files = [
-    (conf_dir, ['packaging/xo.toml.example'])
-]
+data_files = []
 
 if os.path.exists("/etc/default"):
     data_files.append(

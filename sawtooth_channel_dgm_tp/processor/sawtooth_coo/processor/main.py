@@ -10,12 +10,12 @@ from sawtooth_sdk.processor.config import get_log_config
 from sawtooth_sdk.processor.config import get_log_dir
 from sawtooth_sdk.processor.config import get_config_dir
 from sawtooth_coo.processor.handler import CoOTransactionHandler
-from sawtooth_coo.processor.config.xo import XOConfig
-from sawtooth_coo.processor.config.xo import \
+from sawtooth_coo.processor.config.gdm import GDMConfig
+from sawtooth_coo.processor.config.gdm import \
     load_default_coo_config
-from sawtooth_coo.processor.config.xo import \
+from sawtooth_coo.processor.config.gdm import \
     load_toml_coo_config
-from sawtooth_coo.processor.config.xo import \
+from sawtooth_coo.processor.config.gdm import \
     merge_coo_config
 
 
@@ -53,8 +53,7 @@ def parse_args(args):
 def load_coo_config(first_config):
     default_coo_config = \
         load_default_coo_config()
-    # FIXME: why is the config file called xo.toml?
-    conf_file = os.path.join(get_config_dir(), 'xo.toml')
+    conf_file = os.path.join(get_config_dir(), 'gdm.toml')
 
     toml_config = load_toml_coo_config(conf_file)
 
@@ -64,7 +63,7 @@ def load_coo_config(first_config):
 
 def create_coo_config(args):
     # FIXME: rename this class
-    return XOConfig(connect=args.connect)
+    return GDMConfig(connect=args.connect)
 
 
 def main(args=None):
@@ -74,23 +73,20 @@ def main(args=None):
     processor = None
     try:
         arg_config = create_coo_config(opts)
-        xo_config = load_coo_config(arg_config)  # FIXME: phrasing!
-        processor = TransactionProcessor(url=xo_config.connect)
-        log_config = get_log_config(filename="xo_log_config.toml")  # FIXME
+        gdm_config = load_coo_config(arg_config)
+        processor = TransactionProcessor(url=gdm_config.connect)
+        log_config = get_log_config(filename="gdm_log_config.toml")
 
-        # If no toml, try loading yaml
-        # FIXME: xo_...
         if log_config is None:
-            log_config = get_log_config(filename="xo_log_config.yaml")
+            log_config = get_log_config(filename="gdm_log_config.yaml")
 
         if log_config is not None:
             log_configuration(log_config=log_config)
         else:
             log_dir = get_log_dir()
-            # use the transaction processor zmq identity for filename
             log_configuration(
                 log_dir=log_dir,
-                name="xo-" + str(processor.zmq_id)[2:-1])  # FIXME; xo-...
+                name="gdm-" + str(processor.zmq_id)[2:-1])  # FIXME; xo-...
 
         init_console_logging(verbose_level=opts.verbose)
 
